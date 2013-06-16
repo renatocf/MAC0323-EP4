@@ -85,14 +85,14 @@ int main(int argc, char **argv)
         if(argc != 2 && argc != 3) 
         {
             /* Opções incorretas */
-            fprintf(stderr, "Uso: ./ep3 -f<arquivo.txt.out>\n");
+            fprintf(stderr, "Uso: ./ep4 -f<arquivo.txt.out>\n");
             return EXIT_FAILURE;
         }
         else if(argv[1][0] != '-' || argv[1][1] != 'f')
         {
             /* Arquivo não fornecido */
             fprintf(stderr, "Erro: arquivo requerido para análise!\n");
-            fprintf(stderr, "Uso: ./ep3 -f<arquivo.txt.out>\n");
+            fprintf(stderr, "Uso: ./ep4 -f<arquivo.txt.out>\n");
             return EXIT_FAILURE;
         }    
         else
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
         }
         
     /** INTERFACE ITERATIVA *******************************************/
-        printf("MAC0323-EP3: Localização de Palavras I\n\n");
+        printf("MAC0323-EP4: Localização de Palavras II\n\n");
         while(1)
         {
             verbosity = 0;
@@ -182,6 +182,7 @@ int main(int argc, char **argv)
             {
                 Word w;
                 getchar(); query = getline(stdin, '\n'); 
+                /* printf("DEBUG===:query:===>%s\n", query); */
                 w = word_table_get(query); free(query);
                 
                 if(w != NULL) 

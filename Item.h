@@ -16,6 +16,6 @@
 #include <string.h>
 
 typedef void *Item;
-typedef void *Key;
+typedef char *Key;
 
 #endif

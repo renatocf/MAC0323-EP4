@@ -72,12 +72,14 @@ ST words;
 static Key key(Item w)
     { Word aux = (Word) w; return (Key) aux->word; }
 
-static int eq(Key word1, Key word2)
+static int eq(Key w1, Key w2)
 {
-    char *w1 = (char *) word1, *w2 = (char *) word2; 
     char W1[BUF_CMP_SIZE], W2[BUF_CMP_SIZE]; int s = 0;
-    for(s = 0; w1[s] != ' '; s++) W1[s] = w1[s]; W1[s] = '\0';
-    for(s = 0; w2[s] != ' '; s++) W2[s] = w2[s]; W2[s] = '\0';
+    
+    for(s = 0; w1[s] != ' ' && w1[s] != '\0'; s++) 
+        W1[s] = w1[s]; W1[s] = '\0';
+    for(s = 0; w2[s] != ' ' && w2[s] != '\0'; s++) 
+        W2[s] = w2[s]; W2[s] = '\0';
     return strcmp(W1, W2) == 0;
 }
 
@@ -85,8 +87,10 @@ static int less(Key word1, Key word2)
 { 
     char *w1 = (char *) word1, *w2 = (char *) word2; 
     char W1[BUF_CMP_SIZE], W2[BUF_CMP_SIZE]; int s = 0;
-    for(s = 0; w1[s] != ' '; s++) W1[s] = w1[s]; W1[s] = '\0';
-    for(s = 0; w2[s] != ' '; s++) W2[s] = w2[s]; W2[s] = '\0';
+    for(s = 0; w1[s] != ' ' && w1[s] != '\0'; s++) 
+        W1[s] = w1[s]; W1[s] = '\0';
+    for(s = 0; w2[s] != ' ' && w2[s] != '\0'; s++) 
+        W2[s] = w2[s]; W2[s] = '\0';
     return strcmp(W1, W2) < 0;
 }
 
@@ -98,10 +102,11 @@ static int less(Key word1, Key word2)
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 */
 
+/* Libera a estrutura da sentença */
 static void sent_free(void *sent) { free(sent); }
 
-/* Livera a estrutura relacionada a uma palavra */
-static void word_free(void *word)
+/* Libera a estrutura relacionada a uma palavra */
+static void word_free(Item word)
 {
     Word w = (Word) word; 
     list_select(w->sentences, sent_free);
@@ -176,8 +181,8 @@ void word_table_init()
 void word_table_free()
     { STfree(words); }
 
-Word word_table_get(char *word)
-    { return (Word) STsearch(words, word); }
+Word word_table_get(char *query)
+    { return (Word) STsearch(words, query); }
 
 void word_table_insert(char *word, char *lemma, 
     char *identifier, char *sentence, char *annotated)

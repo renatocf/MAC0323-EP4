@@ -61,8 +61,10 @@ static int eq(Key lemma1, Key lemma2)
 {    
     char *l1 = (char *) lemma1, *l2 = (char *) lemma2; 
     char L1[BUF_CMP_SIZE], L2[BUF_CMP_SIZE]; int s = 0;
-    for(s = 0; l1[s] != ' '; s++) L1[s] = l1[s]; L1[s] = '\0';
-    for(s = 0; l2[s] != ' '; s++) L2[s] = l2[s]; L2[s] = '\0';
+    for(s = 0; l1[s] != ' ' && l1[s] != '\0'; s++) 
+        L1[s] = l1[s]; L1[s] = '\0';
+    for(s = 0; l2[s] != ' ' && l2[s] != '\0'; s++) 
+        L2[s] = l2[s]; L2[s] = '\0';
     return strcmp(L1, L2) == 0;
 }
 
@@ -70,8 +72,10 @@ static int less(Key lemma1, Key lemma2)
 { 
     char *l1 = (char *) lemma1, *l2 = (char *) lemma2; 
     char L1[BUF_CMP_SIZE], L2[BUF_CMP_SIZE]; int s = 0;
-    for(s = 0; l1[s] != ' '; s++) L1[s] = l1[s]; L1[s] = '\0';
-    for(s = 0; l2[s] != ' '; s++) L2[s] = l2[s]; L2[s] = '\0';
+    for(s = 0; l1[s] != ' ' && l1[s] != '\0'; s++) 
+        L1[s] = l1[s]; L1[s] = '\0';
+    for(s = 0; l2[s] != ' ' && l2[s] != '\0'; s++) 
+        L2[s] = l2[s]; L2[s] = '\0';
     return strcmp(L1, L2) < 0;
 }
 
