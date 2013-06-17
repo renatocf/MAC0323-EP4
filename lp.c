@@ -187,31 +187,34 @@ void STdelete(ST st, Key k)
 static ST global_st;
 static int cmp(const void *a, const void *b)
 {
-    if(global_st->less((Key) a, (Key) b)) return -1;
-    if(global_st->eq((Key) a, (Key) b)) return 0;
+    if(global_st->less(*(Key *) a, *(Key *) b)) return -1;
+    if(global_st->eq(*(Key *) a, *(Key *) b)) return 0;
     return 1;
 }
 
 void STsort(ST st, void(*visit)(Item))
 {
     int i = 0, j = 0, M = st->M, N = st->N; 
-    printf("%d\n", N);
     Key *keys = (Key *) malloc(N * sizeof(*keys));
+    
+    /* Armazena chaves no vetor de chaves*/
     for(i = 0; i < M; i++)
     {
         if(st->item[i] != st->NULLitem) 
             keys[j++] = st->key(st->item[i]);
     }
     
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    /* Ordena as chaves conforme 'less' e 'eq' */
     global_st = st;
-    qsort((void *) keys, N, sizeof(*keys), cmp);
+    qsort(keys, N, sizeof(Key *), cmp);
     
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
-    
+    /* Visita chaves ordenadas */
+    for(i = 0; i < N; i++)
+        visit(STsearch(st, keys[i]));
+
     free(keys); /* Libera vetor auxiliar de chaves */
 }
 
 /* Liberação de memória */
 void STfree(ST st)
-    { STsort(st, st->free_item); free(st); }
+    { /* STsort(st, st->free_item); */ free(st); }

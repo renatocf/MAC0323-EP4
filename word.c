@@ -76,9 +76,9 @@ static int eq(Key w1, Key w2)
 {
     char W1[BUF_CMP_SIZE], W2[BUF_CMP_SIZE]; int s = 0;
     for(s = 0; w1[s] != ' ' && w1[s] != '\0'; s++) 
-    { /* putchar(w1[s]);  */W1[s] = w1[s]; } /* putchar('\n');  */W1[s] = '\0';
+        W1[s] = w1[s]; W1[s] = '\0';
     for(s = 0; w2[s] != ' ' && w2[s] != '\0'; s++) 
-    { /* putchar(w2[s]);  */W2[s] = w2[s]; } /* putchar('\n');  */W2[s] = '\0';
+        W2[s] = w2[s]; W2[s] = '\0';
     return strcmp(W1, W2) == 0;
 }
 
@@ -86,9 +86,9 @@ static int less(Key w1, Key w2)
 { 
     char W1[BUF_CMP_SIZE], W2[BUF_CMP_SIZE]; int s = 0;
     for(s = 0; w1[s] != ' ' && w1[s] != '\0'; s++) 
-    { putchar(w1[s]); W1[s] = w1[s]; } putchar('\n'); W1[s] = '\0';
+        W1[s] = w1[s]; W1[s] = '\0';
     for(s = 0; w2[s] != ' ' && w2[s] != '\0'; s++) 
-    { putchar(w2[s]); W2[s] = w2[s]; } putchar('\n'); W2[s] = '\0';
+        W2[s] = w2[s]; W2[s] = '\0';
     return strcmp(W1, W2) < 0;
 }
 

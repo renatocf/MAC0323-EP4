@@ -129,8 +129,8 @@ static link NEW(Item item, link next)
 static ST init(ST st, int M)
 { 
     int i; st->N = 0;
-    st->heads = malloc(st->M * sizeof(link));
-    for (i = 0; i < st->M; i++) st->heads[i] = z; 
+    st->heads = malloc(M * sizeof(link));
+    for (i = 0; i < M; i++) st->heads[i] = z; 
     return st;
 }
 
@@ -211,8 +211,8 @@ void STdelete(ST st, Key k)
 static ST global_st;
 static int cmp(const void *a, const void *b)
 {
-    if(global_st->less((Key) a, (Key) b)) return -1;
-    if(global_st->eq((Key) a, (Key) b)) return 0;
+    if(global_st->less(*(Key *) a, *(Key *) b)) return -1;
+    if(global_st->eq(*(Key *) a, *(Key *) b)) return 0;
     return 1;
 }
 
