@@ -57,9 +57,8 @@ ST lemmas;
 static Key key(Item l)
     { Lemma aux = (Lemma) l; return (Key) aux->lemma; }
 
-static int eq(Key lemma1, Key lemma2)
+static int eq(Key l1, Key l2)
 {    
-    char *l1 = (char *) lemma1, *l2 = (char *) lemma2; 
     char L1[BUF_CMP_SIZE], L2[BUF_CMP_SIZE]; int s = 0;
     for(s = 0; l1[s] != ' ' && l1[s] != '\0'; s++) 
         L1[s] = l1[s]; L1[s] = '\0';
@@ -68,9 +67,8 @@ static int eq(Key lemma1, Key lemma2)
     return strcmp(L1, L2) == 0;
 }
 
-static int less(Key lemma1, Key lemma2)
+static int less(Key l1, Key l2)
 { 
-    char *l1 = (char *) lemma1, *l2 = (char *) lemma2; 
     char L1[BUF_CMP_SIZE], L2[BUF_CMP_SIZE]; int s = 0;
     for(s = 0; l1[s] != ' ' && l1[s] != '\0'; s++) 
         L1[s] = l1[s]; L1[s] = '\0';
@@ -129,8 +127,10 @@ static void print_lemma_word(void *lemma)
 static void print_lemmas(void *lemma)
 {
     int s; Lemma l = (Lemma) lemma;
-    for(s = 0; l->lemma[s] != ']'; s++) putchar(l->lemma[s]);
-    putchar(PRT_SEPARATOR);
+    for(s = 0; l->lemma[s] != ']'; s++) 
+        if(l->lemma[s] < 'A' || (l->lemma[s] > 'Z' && l->lemma[s] < 'a')
+        || l->lemma[s] > 'z') return;
+    printf("%.*s", s, l->lemma); putchar(PRT_SEPARATOR);
 }
 
 /* Função para comparação entre lemas */

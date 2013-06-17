@@ -7,7 +7,6 @@
 */
 
 /* Bibliotecas-padrão */
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,18 +22,23 @@
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 */
 
+/* Definição de nódulo para lista */
+typedef struct STnode *link;
+struct STnode { Item item; link next; };
+
+/* Cauda padrão para todas as listas */
+static link z;
+
 /* Estrutura para o HASH */
 struct st {
     int N, M;
-    Item *item;
+    link *heads;
     void *NULLitem;
     Key   (*key) (Item);
     int   (*eq)  (Key, Key);
     int   (*less)(Key, Key);
     void  (*free_item)(Item);
 };
-
-#define null(A) ((st->item[A]) == (st->NULLitem))
 
 /*
 ////////////////////////////////////////////////////////////////////////
@@ -109,12 +113,20 @@ int hash(char *v, int M)
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 */
 
+/* Cria novo nódulo de lista */
+static link NEW(Item item, link next)
+{
+    link x = malloc(sizeof *x);
+    x->item = item; x->next = next;
+    return x;
+}
+
 /* Inicialização */
 static ST init(ST st, int M)
 { 
     int i; st->N = 0;
-    st->item = malloc(M * sizeof(Item)); 
-    for (i = 0; i < M; i++) st->item[i] = st->NULLitem;
+    st->heads = malloc(M * sizeof(link));
+    for (i = 0; i < M; i++) heads[i] = z; 
     return st;
 }
 
@@ -125,7 +137,13 @@ ST STinit(
     int  (*eq)(Key, Key),
     int  (*less)(Key, Key) )
 {
+    /* Inicializa nova tabela de símbolos */
     ST new = (ST) malloc(sizeof(*new));
+    
+    /* Inicializa 'z' (se não feito antes) */
+    if(z == NULL) z = NEW(NULLitem, NULL);
+    
+    /* Inicializa itens referentes às tabelas */
     new->NULLitem = NULLitem; new->free_item = free_item; 
     new->eq = eq; new->less = less; new->key = key;
     new->M = 251; new = init(new, new->M);
@@ -142,75 +160,39 @@ void STinsert(ST st, Item item)
 { 
     Key v = st->key(item);
     int i = hash(v, st->M);
-    while (!null(i)) i = (i+1) % st->M;
-    st->item[i] = item;
+    heads[i] = NEW(item, heads[i]); N++; 
     if (st->N++ > st->M/2) resize(st, 2);
-    /* else if (st->N++ < st->M/4) resize(st, 0.5); */
 }
 
 static void resize(ST st, float factor)
 { 
-    int i, MM = st->M; Item *t = st->item;
+    int i, MM = st->M; link aux, *t = st->heads;
     st->M = prime_m(factor * st->M);
     st = init(st, st->M);
     for (i = 0; i < MM; i++) 
-        if (t[i] != st->NULLitem)
-            STinsert(st, t[i]); 
+        for(aux = t[i]; aux != z; aux = aux->next) 
+            STinsert(st, aux->item); 
     free(t);
 }
 
 /* Busca */
-Item STsearch(ST st, Key v)
+Item searchR(link t, Key v)
 { 
-    int i = hash(v, st->M);
-    while (!null(i))
-        if (st->eq(v, st->key(st->item[i])))
-            return st->item[i];
-        else i = (i+1) % st->M;
-    return st->NULLitem;
+    if (t == z) return NULLitem;
+    if (eq(key(t->item), v)) return t->item;
+    return searchR(t->next, v);
 }
 
-/* Remoção */
-void STdelete(ST st, Key k)
-{   
-    long j, i = hash(k, st->M); Item v;
-    while (!null(i))
-        if (st->eq(k, st->key(st->item[i]))) break; 
-        else i = (i+1) % st->M;
-    if (null(i)) return;
-    st->item[i] = st->NULLitem; st->N--;
-    for (j = i+1; !null(j); j = (j+1) % st->M, st->N--)
-    { v = st->item[j]; st->item[j] = st->NULLitem; STinsert(st, v); }
-}
-
-/* Liberação de memória */
-void STfree(ST st)
-    { /* st->free_item(st->item); */ free(st); }
-
-/* Ordenação */
-static ST global_st;
-static int cmp(const void *a, const void *b)
-{
-    if(global_st->less((Key) a, (Key) b)) return -1;
-    if(global_st->eq((Key) a, (Key) b)) return 0;
-    return 1;
-}
+Item STsearch(ST st, Key v)
+{ return searchR(st->heads[hash(v, st->M)], v); }
 
 void STsort(ST st, void(*visit)(Item))
 {
-    int i = 0, j = 0, M = st->M, N = st->N; 
-    printf("%d\n", N);
-    Key *keys = (Key *) malloc(N * sizeof(*keys));
-    for(i = 0; i < M; i++)
+    int i; link t;
+    for(i = 0; i < st->M; i++) 
     {
-        if(st->item[i] != st->NULLitem) 
-            keys[j++] = st->key(st->item[i]);
+        if(st->heads[i] != z)
+            for(t = st->heads[i]; t != z; t = t->next) 
+                visit(t->item);
     }
-    
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
-    printf("\n");
-    global_st = st;
-    qsort((void *) keys, N, sizeof(*keys), cmp);
-    
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
 }

@@ -1,62 +1,58 @@
 \documentclass[a4paper,12pt]{article}
 
-\usepackage[utf8]{inputenc}
-\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc} % Encoding no formato UTF-8
+\usepackage[brazil]{babel}  % Pacote para a língua portuguesa
 
-\usepackage{setspace}                   % espaçamento flexível
-\usepackage{indentfirst}                % indentação do primeiro parágrafo
-\usepackage[fixlanguage]{babelbib}
+\usepackage{setspace}               % espaçamento flexível
+\usepackage{indentfirst}            % indentação do primeiro parágrafo
+\usepackage[fixlanguage]{babelbib}  
 \usepackage[usenames,svgnames,dvipsnames]{xcolor}
 
-\usepackage[pdftex,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,
-            citecolor=DarkGreen,linkcolor=NavyBlue,urlcolor=DarkRed,
-            filecolor=green,bookmarksopen=true]{hyperref}   % links coloridos
-\usepackage[all]{hypcap}                                    % soluciona o 
-                                                            % problema com o 
+\usepackage[pdftex,plainpages=false,pdfpagelabels,pagebackref,
+            colorlinks=true,citecolor=DarkGreen,linkcolor=DarkRed,
+            urlcolor=DarkRed,filecolor=DarkGreen,
+            bookmarksopen=true]{hyperref}
+            % links coloridos
+\usepackage[all]{hypcap} % soluciona o problema com hiperreferências 
 
-\hypersetup{
-  colorlinks=true,
-  filecolor=blue,
-  % urlcolor=blue!70!black
-}
-
-\title{Localização de Palavras}
-\author{Renato Cordeiro Ferreira}
-
-% ---------------------------------------------------------------------------- %
+% -------------------------------------------------------------------- %
 % INFORMAÇÕES
-\pdfinfo{%
-  /Title    (Análise de Ferramentas para Predição de DNA e RNA)
-  /Author   (Renato Cordeiro Ferreira)
-  /Creator  (Renato Cordeiro Ferreira)
-  /Producer (Renato Cordeiro Ferreira)
-  /Subject  (Proposta de Iniciação Científica)
-  /Keywords (Iniciação Científica, Bioinformática, Predição Genética)
+\pdfinfo{
+  /title    (Localização de Palavras II)
+  /author   (Renato Cordeiro Ferreira)
+  /creator  (Renato Cordeiro Ferreira)
+  /producer (Renato Cordeiro Ferreira)
+  /subject  (Proposta de Iniciação Científica)
+  /keywords (Lematização, hashes, probing linear, tabelas de símbolos)
 }
+
+\title {Localização de Palavras II}
+\author{Renato Cordeiro ferreira}
 
 \begin{document}
 
-
-\newpage %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagenumbering{arabic}     % começamos a numerar 
+\newpage %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagenumbering{arabic} % começamos a numerar 
 
 \maketitle
 
-\section{Introdução} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introdução} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     Neste exercício-programa, tínhamos como objetivo criar uma estrutura
-    que manipulasse as saídas geradas pelo programa CoreNLP,
+    que manipulasse as saídas geradas pelo programa CoreNLP,     
     disponibilizado pela Universidade de Stanford\footnote{Disponível em
-    \url{http://nlp.stanford.edu/software/corenlp.shtml}}. O CoreNLP é um
-    software de processamento de linguagem natural que oferece o recurso
-    de ``lematização'': para cada palavra presente num texto, geramos o
-    correspondente ``lema'' - a origem da palavra.
+    \url{http://nlp.stanford.edu/software/corenlp.shtml}}. O CoreNLP é 
+    um software de processamento de linguagem natural que oferece o 
+    recurso de ``lematização'': para cada palavra presente num texto,
+    geramos o correspondente ``lema'' - a origem da palavra.
 
     Para este programa, foram utilizadas as estruturas de listas ligadas
     e árvores rubro-negras esquerdistas para implementar tabelas de
     símbolos que manejassem palavras e lemas.
 
-\section{Arquivos} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Arquivos} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     O presente EP é composto dos seguintes arquivos:    
     
@@ -78,34 +74,42 @@
     
     Cada um deles apresenta algumas particularidades:
     
-    \subsection{getline} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{getline}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         O arquivo 'getline', retirado das notas de aula do prof.
         Yoshiharu, foi utilizado como um módulo para leitura de strings
         de tamanho desconhecido. Com ele, foi possível produzir um
         buffer que armazenasse o texto lido.
 
-    \subsection{lemma} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{lemma} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         Um módulo que utiliza as estruturas de lista e tabela de
         símbolos para poder construir as funções necessárias para o
         acesso, contagem e impressão de dados relacionados aos lemas.
 
-    \subsection{list} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{list} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Uma lista generalizada, implementada com o auxílio de ponteiros
         do tipo \textbf{void *} e com tipos de 1ª classe. É possível
         usá-la como uma lista genérica para itens de qualquer tipo.
 
-    \subsection{main} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{main} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Arquivo principal do texto que contêm a interface com o usuário
         (via linha de comando e opções de execução) e a leitura (em fase
         de pré-processamento) do texto passado como parâmetro ao
         programa.
 
-    \subsection{makefile} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{makefile} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Arquivo para a compilação dos arquivos. Sua estrutura é de
         propósito geral e permite compilar projetos diversificados com
         diretórios.
         
-    \subsection{ST} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{ST} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Tabela de símbolos implementada com o uso de \textbf{ARNEs}
         (Árvores Rubro-Negro Esquerdistas). Estas árvores foram
         generalizadas para a utilização como tipo de 1ª classe e para
@@ -116,17 +120,20 @@
         na página do professor Yoshiharu
         (\href{http://www.ime.usp.br/~yoshi/2012i/mac323/exx/LLRB.3/llrb.c}{llrb.c})
         e modificados para aceitar diferentes tipos de chaves. A função de 
-        definição da chave precisa ser especificada juntamente com as funções ``less'', 
-        ``eq'' e o tipo ``NULLitem'' na função ``STinit()``.
+        definição da chave precisa ser especificada juntamente com as
+        funções ``less'', ``eq'' e o tipo ``NULLitem'' na função 
+        ``STinit()``.
 
-    \subsection{word} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \subsection{word} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Módulo relacionado a funções de manipulação da tabela de
         símbolos que armazena palavras. Contém estruturas que guardam
         uma lista de sentenças, o lema e a própria palavra (por meio de 
         ponteiros para um buffer) que auxiliam a imprimir, contar e 
         acessar os dados presentes na tabela de símbolos.
 
-\section{Considerações finais} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Considerações finais} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Dada a generalização das estruturas propostas por esta implementação
     do exercício-programa, o custo do uso de ponteiros \textbf{void *}
     durante quase todo o processo diminuiu a eficiência do

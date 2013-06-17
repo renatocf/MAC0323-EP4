@@ -2,29 +2,63 @@
 #                             OPTIONS                                 #
 #######################################################################
 
+# Binary name (your program's name):
+BIN := ep4
+
+# Flags para processo de compilação e linkage
+CFLAGS  += -ansi -Wall -pedantic -g
+LDFLAGS += -lm 
+
+# Boolean options ('true' or 'false')
+B_DEBUG   = 'true'
+B_INSTALL = 'false'
+
+# Options to installation
+ICON 	:= 
+DESKTOP := 
+
+########################################################################
+#                        AUTOMATIC CONFIGS                             #
+########################################################################
+
 # PROGRAMS #############################################################
-AR := ar
-CC := gcc
-CP := cp -f
-RM := rm -f
-SED := sed
-FMT := fmt -1
-CAT := cat
-LEX  := flex
-YACC := bison
-FIND = find $(FDIR) -type d
-MAKE += --no-print-directory
+# The following programs are defined with the base in common avaiable
+# programs in a modern Linux distribuition (as Ubuntu) with GNU Project
+# programs also installed (as flex and bison).
+
+# If you desire to change some of them, redefine the following names
+# in a file called 'programs.mk' in your conf dir (see below).
+
+AR    := ar
+CC    := gcc
+CP    := cp -f
+RM    := rm -f
+SED   := sed
+FMT   := fmt -1
+CAT   := cat
+LEX   := flex
+YACC  := bison
+PROF  := gprof
+FIND   = find $(FDIR) -type d
 MKDIR := mkdir -p
 RMDIR := rmdir --ignore-fail-on-non-empty
 
+MAKE  += --no-print-directory
+-include $(CONFDIR)/programs.mk
+
 # DIRECTORIES ##########################################################
-# To a multiple directory project, we suggest the names:
+# To a multiple directory project, create a file 'derectories.mk' in
+# your conf directory, redefining the following dir names by the ones   
+# you desire. 
+
+# We suggest the names:
 # src, obj, bin, lib, doc, conf, test, include, install, data
+
 SRCDIR  := .
 OBJDIR  := .
 BINDIR  := .
 LIBDIR  := .
-DOCDIR  := doc
+DOCDIR  := . 
 CONFDIR := .
 TESTDIR := .
 HEADDIR := .
@@ -35,7 +69,6 @@ DATADIR := .
 VPATH = $(CONFDIR):$(SRCDIR):$(LIBDIR):$(BINDIR):$(TESTDIR):$(HEADDIR)
 
 # SOURCE ###############################################################
-BIN := ep4
 SRC := $(notdir $(shell ls $(SRCDIR)/*.c))
 LIB := $(CONFDIR)/libraries.mk
 DEP := $(addprefix $(CONFDIR)/,$(SRC:.c=.d))
@@ -45,22 +78,34 @@ OBJ := $(filter-out $(ARLIB) $(SOLIB),$(SRC)) # Tira bibliotecas
 OBJ := $(patsubst %.c,%.o,$(OBJ))             # Substitui .c por .o
 OBJ := $(addprefix $(OBJDIR)/,$(OBJ))         # Adiciona diretório
 
-# INSTALL CONFIGS ######################################################
-# Instalation options (on if 'true', off if 'false')
-B_INSTALL = 'false'
+# COMPILATION ##########################################################
+FDIR = $(HEADDIR) # Gerando diretórios
+CLIBS  := -I. $(patsubst %,-I%,$(filter-out .%,$(shell $(FIND))))
 
-ifeq ($(B_INSTALL),'true')
-# Options to installation
-ICON 	:= 
-DESKTOP := 
-
-# Messages
-INSTALL_SUCCESS   := "Canoa successfully installed!"
-UNINSTALL_MESSAGE := "Removing Canoa..."
+# DEBUG ################################################################
+ifeq ($(B_DEBUG),'true')
+CFLAGS  += -pg -fprofile-arcs
+LDFLAGS += -pg -fprofile-arcs
 endif
+
+# LINKAGE ##############################################################
+FDIR = $(LIBDIR) # Gerando bibliotecas
+LDLIBS   = -L. $(patsubst %,-L%,$(filter-out .%,$(shell $(FIND))))
+
+# Flags para processo de ligação 
+LDFLAGS += -Wl,-rpath,$(LIBDIR)
+LDFLAGS += $(filter -l%,$(patsubst lib%.a,-l%,$(LIBS))) \
+ 		   $(filter -l%,$(patsubst lib%.so,-l%,$(LIBS)))
 
 # INSTALL ##############################################################
 ifeq ($(B_INSTALL),'true')
+
+# Messages
+INSTALL_SUCCESS   := "$(BIN) successfully installed!"
+UNINSTALL_MESSAGE := "Removing $(BIN)..."
+
+# Check whether user is root or not 
+# (for local/system installation)
 USER = $(shell whoami)
 
 ifeq ($(USER),root) #global
@@ -73,24 +118,7 @@ INSTAPP = $(HOME)/.local/share/applications
 INSTICO = $(HOME)/.local/share/icons
 endif
 
-endif
-
-# COMPILATION ##########################################################
-FDIR = $(HEADDIR) # Gerando diretórios
-CLIBS  := -I. $(patsubst %,-I%,$(filter-out .%,$(shell $(FIND))))
-
-# Flags para processo de compilação
-CFLAGS := -ansi -Wall -pedantic -g
-
-# LINKAGE ##############################################################
-FDIR = $(LIBDIR) # Gerando bibliotecas
-LDLIBS   = -L. $(patsubst %,-L%,$(filter-out .%,$(shell $(FIND))))
-
-# Flags para processo de ligação
-LDFLAGS := -lm
-LDFLAGS += -Wl,-rpath,$(LIBDIR)
-LDFLAGS += $(filter -l%,$(patsubst lib%.a,-l%,$(LIBS))) \
- 		   $(filter -l%,$(patsubst lib%.so,-l%,$(LIBS)))
+endif # B_INSTALL == 'true'
 
 ########################################################################
 #                            INSTALLATION                              #
@@ -120,6 +148,12 @@ install:
 	@ echo $(INSTALL_SUCCESS)
 endif
 
+ifeq ($(B_DEBUG),'true')
+.PHONY: debug
+debug:
+	$(PROF) $(BIN) gmon.out > $(DATADIR)/$@.txt
+endif
+
 .PHONY: doc
 doc:
 	$(MAKE) -C $(DOCDIR)
@@ -131,7 +165,8 @@ doc:
 .PHONY: clean
 clean:
 	$(RM) $(OBJDIR)/*.o $(LIBDIR)/*.a $(LIBDIR)/*.so
-	$(RM) $(SRCDIR)/*~ $(HEADDIR)/*~
+	$(RM) $(BINDIR)/gmon.out $(DATADIR)/debug.txt
+	$(RM) $(SRCDIR)/*~ $(HEADDIR)/*~ 
 	$(RM) $(DEP)
 	-$(RMDIR) $(OBJDIR) 2> /dev/null
 

@@ -182,7 +182,7 @@ int main(int argc, char **argv)
             {
                 Word w;
                 getchar(); query = getline(stdin, '\n'); 
-                /* printf("DEBUG===:query:===>%s\n", query); */
+                /* fprintf(stderr, "DEBUG===:query:===>%s\n", query); */
                 w = word_table_get(query); free(query);
                 
                 if(w != NULL) 
