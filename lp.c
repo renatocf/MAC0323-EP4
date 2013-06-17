@@ -173,7 +173,7 @@ Item STsearch(ST st, Key v)
 /* Remoção */
 void STdelete(ST st, Key k)
 {   
-    long j, i = hash(k, st->M); Item v;
+    int j, i = hash(k, st->M); Item v;
     while (!null(i))
         if (st->eq(k, st->key(st->item[i]))) break; 
         else i = (i+1) % st->M;
@@ -182,10 +182,6 @@ void STdelete(ST st, Key k)
     for (j = i+1; !null(j); j = (j+1) % st->M, st->N--)
     { v = st->item[j]; st->item[j] = st->NULLitem; STinsert(st, v); }
 }
-
-/* Liberação de memória */
-void STfree(ST st)
-    { /* st->free_item(st->item); */ free(st); }
 
 /* Ordenação */
 static ST global_st;
@@ -208,9 +204,14 @@ void STsort(ST st, void(*visit)(Item))
     }
     
     for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
-    printf("\n");
     global_st = st;
     qsort((void *) keys, N, sizeof(*keys), cmp);
     
     for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    
+    free(keys); /* Libera vetor auxiliar de chaves */
 }
+
+/* Liberação de memória */
+void STfree(ST st)
+    { STsort(st, st->free_item); free(st); }

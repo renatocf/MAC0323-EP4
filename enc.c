@@ -7,6 +7,7 @@
 */
 
 /* Bibliotecas-padrão */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -39,6 +40,9 @@ struct st {
     int   (*less)(Key, Key);
     void  (*free_item)(Item);
 };
+
+/* Contador para número de tabelas de símbolo */
+static int TSn = 0;
 
 /*
 ////////////////////////////////////////////////////////////////////////
@@ -125,8 +129,8 @@ static link NEW(Item item, link next)
 static ST init(ST st, int M)
 { 
     int i; st->N = 0;
-    st->heads = malloc(M * sizeof(link));
-    for (i = 0; i < M; i++) heads[i] = z; 
+    st->heads = malloc(st->M * sizeof(link));
+    for (i = 0; i < st->M; i++) st->heads[i] = z; 
     return st;
 }
 
@@ -138,7 +142,7 @@ ST STinit(
     int  (*less)(Key, Key) )
 {
     /* Inicializa nova tabela de símbolos */
-    ST new = (ST) malloc(sizeof(*new));
+    ST new = (ST) malloc(sizeof(*new)); TSn++;
     
     /* Inicializa 'z' (se não feito antes) */
     if(z == NULL) z = NEW(NULLitem, NULL);
@@ -160,7 +164,7 @@ void STinsert(ST st, Item item)
 { 
     Key v = st->key(item);
     int i = hash(v, st->M);
-    heads[i] = NEW(item, heads[i]); N++; 
+    st->heads[i] = NEW(item, st->heads[i]); st->N++; 
     if (st->N++ > st->M/2) resize(st, 2);
 }
 
@@ -176,23 +180,66 @@ static void resize(ST st, float factor)
 }
 
 /* Busca */
-Item searchR(link t, Key v)
+Item searchR(ST st, link t, Key v)
 { 
-    if (t == z) return NULLitem;
-    if (eq(key(t->item), v)) return t->item;
-    return searchR(t->next, v);
+    if(t == z) return st->NULLitem;
+    if(st->eq(st->key(t->item), v)) return t->item;
+    return searchR(st, t->next, v);
 }
 
 Item STsearch(ST st, Key v)
-{ return searchR(st->heads[hash(v, st->M)], v); }
+{ return searchR(st, st->heads[hash(v, st->M)], v); }
+
+/* Remoção */
+void STdelete(ST st, Key k)
+{   
+    int i = hash(k, st->M);
+    link s = st->heads[i], t = st->heads[i]->next;
+    
+    /* Caso base: vazio e remoção no primeiro elemento */
+    if(s == z) return;
+    if(st->eq(st->key(t->item), k))
+    { st->heads[i] = s->next; free(s); st->N--; return; }
+    
+    /* Caso geral: remoção no n-ésimo elemento */
+    while(t != z)
+        if(st->eq(st->key(t->item), k))
+        { s->next = t->next; free(t); return; }
+}
+
+/* Ordenação */
+static ST global_st;
+static int cmp(const void *a, const void *b)
+{
+    if(global_st->less((Key) a, (Key) b)) return -1;
+    if(global_st->eq((Key) a, (Key) b)) return 0;
+    return 1;
+}
 
 void STsort(ST st, void(*visit)(Item))
 {
-    int i; link t;
+    int i = 0, j = 0, N = st->N; link t;
+    Key *keys = (Key *) malloc(N * sizeof(*keys));
+    printf("%d\n", N);
     for(i = 0; i < st->M; i++) 
     {
         if(st->heads[i] != z)
-            for(t = st->heads[i]; t != z; t = t->next) 
-                visit(t->item);
+            for(j = 0, t = st->heads[i]; t != z; t = t->next) {
+                /* BUG: dá segfault no -s com NULL aqui */
+                if(t == z) break;
+                keys[j++] = st->key(t);
+            }
     }
+    
+    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    global_st = st;
+    qsort((void *) keys, N, sizeof(*keys), cmp);
+    
+    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    
+    free(keys); /* Libera vetor auxiliar de chaves */
 }
+
+/* Liberação de memória */
+void STfree(ST st)
+    { STsort(st, st->free_item); free(st); }
