@@ -128,7 +128,7 @@ static link NEW(Item item, link next)
 /* Inicialização */
 static ST init(ST st, int M)
 { 
-    int i; st->N = 0;
+    int i; st->N = 0; st->M = M;
     st->heads = malloc(M * sizeof(link));
     for (i = 0; i < M; i++) st->heads[i] = z; 
     return st;
@@ -224,9 +224,10 @@ void STsort(ST st, void(*visit)(Item))
     for(i = 0; i < st->M; i++) 
     {
         if(st->heads[i] != z)
-            for(j = 0, t = st->heads[i]; t != z; t = t->next) {
+            for(j = 0, t = st->heads[i]; t != z; t = t->next) 
+            {
                 /* BUG: dá segfault no -s com NULL aqui */
-                if(t == z) break;
+                /* if(t == z) break; */
                 keys[j++] = st->key(t);
             }
     }

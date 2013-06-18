@@ -112,7 +112,7 @@ int hash(char *v, int M)
 /* Inicialização */
 static ST init(ST st, int M)
 { 
-    int i; st->N = 0;
+    int i; st->N = 0; st->M = M;
     st->item = malloc(M * sizeof(Item)); 
     for (i = 0; i < M; i++) st->item[i] = st->NULLitem;
     return st;
