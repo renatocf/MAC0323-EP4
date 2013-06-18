@@ -23,9 +23,17 @@
 #include <string.h>
 
 /* Bibliotecas internas */
-#include "ST.h"
 #include "list.h"
 #include "lemma.h"
+
+/* Tabela de símbolos */
+#if defined(LP)
+    #include "lp.h"
+#elif defined(ENC)
+    #include "enc.h"
+#elif defined(ARNE)
+    #include "arne.h"
+#endif
 
 /*
 ////////////////////////////////////////////////////////////////////////
