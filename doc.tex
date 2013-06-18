@@ -47,47 +47,44 @@
     recurso de ``lematização'': para cada palavra presente num texto,
     geramos o correspondente ``lema'' - a origem da palavra.
 
-    Para este programa, foram utilizadas as estruturas de listas ligadas
-    e árvores rubro-negras esquerdistas para implementar tabelas de
-    símbolos que manejassem palavras e lemas.
-
+    Para este programa, foram utilizadas as estruturas de tabelas de
+    hash com solução de conflitos por \textit{probing linear} e por
+    encadeamento, de modo a obter algoritmos de complexidade constante
+    (O(1)) para inserções e remoções na maioria dos casos.
+    
 \section{Arquivos} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     O presente EP é composto dos seguintes arquivos:    
     
     \begin{itemize}
-      \item \href{run:./getline.c}{getline.c}
-      \item \href{run:./getline.h}{getline.h}
       \item \href{run:./Item.h}{Item.h}
-      \item \href{run:./lemma.c}{lemma.c}
-      \item \href{run:./lemma.h}{lemma.h}
       \item \href{run:./list.c}{list.c}
       \item \href{run:./list.h}{list.h}
-      \item \href{run:./main.c}{main.c}
-      \item \href{run:./Makefile}{Makefile}
-      \item \href{run:./ST.c}{ST.c}
-      \item \href{run:./ST.h}{ST.h}
+      \item \href{run:./arne.c}{arne.c}
+      \item \href{run:./arne.h}{arne.h}
+      \item \href{run:./enc.c}{enc.c}
+      \item \href{run:./enc.h}{enc.h}
+      \item \href{run:./lp.c}{lp.c}
+      \item \href{run:./lp.h}{lp.h}
       \item \href{run:./word.c}{word.c}
       \item \href{run:./word.h}{word.h}
+      \item \href{run:./lemma.c}{lemma.c}
+      \item \href{run:./lemma.h}{lemma.h}
+      \item \href{run:./getline.c}{getline.c}
+      \item \href{run:./getline.h}{getline.h}
+      \item \href{run:./main.c}{main.c}
+      \item \href{run:./Makefile}{Makefile}
     \end{itemize}
     
     Cada um deles apresenta algumas particularidades:
     
-    \subsection{getline}
+    \subsection{item} 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        O arquivo 'getline', retirado das notas de aula do prof.
-        Yoshiharu, foi utilizado como um módulo para leitura de strings
-        de tamanho desconhecido. Com ele, foi possível produzir um
-        buffer que armazenasse o texto lido.
-
-    \subsection{lemma} 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        Um módulo que utiliza as estruturas de lista e tabela de
-        símbolos para poder construir as funções necessárias para o
-        acesso, contagem e impressão de dados relacionados aos lemas.
+        O item generalizado que serve como configuração para as     
+        implementações das tabelas de símbolos. Neste EP, fizemos uma 
+        modicação em relação ao anterior, transformando as chaves de
+        tipos \textbf{void *} para \textbf{char *}.
 
     \subsection{list} 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,20 +92,7 @@
         do tipo \textbf{void *} e com tipos de 1ª classe. É possível
         usá-la como uma lista genérica para itens de qualquer tipo.
 
-    \subsection{main} 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        Arquivo principal do texto que contêm a interface com o usuário
-        (via linha de comando e opções de execução) e a leitura (em fase
-        de pré-processamento) do texto passado como parâmetro ao
-        programa.
-
-    \subsection{makefile} 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        Arquivo para a compilação dos arquivos. Sua estrutura é de
-        propósito geral e permite compilar projetos diversificados com
-        diretórios.
-        
-    \subsection{ST} 
+    \subsection{arne} 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Tabela de símbolos implementada com o uso de \textbf{ARNEs}
         (Árvores Rubro-Negro Esquerdistas). Estas árvores foram
@@ -123,6 +107,33 @@
         definição da chave precisa ser especificada juntamente com as
         funções ``less'', ``eq'' e o tipo ``NULLitem'' na função 
         ``STinit()``.
+        
+        Para este EP, os arquivos das ARNEs foram mantidas. Entretanto,
+        suas implementações não são utilizadas.
+
+    \subsection{enc} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        O arquivo correspondente a enc.c implementa um protótipo de
+        tabela de símbolo com várias funções de hash baseadas na
+        implementação do Prof. Yoshiharu e generalizadas como tipos de
+        1ª classe para poder ser usado entre as tabelas T1 e T2. A
+        solução das colisões se dá por meio de encadeamentos (criação de
+        listas ligadas) que auxiliam a colocar itens de mesma chave. O
+        hash usado foi simples e a tabela se redimensiona sempre que a
+        proporção N/M > 1/2 (N o total de objetos, M o total de espaços
+        na tabela).
+    \subsection{pl} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        O arquivo correspondente a pl.c implementa um protótipo de
+        tabela de símbolo com várias funções de hash baseadas na
+        implementação do Prof. Yoshiharu e generalizadas como tipos de
+        1ª classe para poder ser usado entre as tabelas T1 e T2. A
+        solução das colisões se dá por meio de probing linear
+        (saltos dentro do vetor de chaves) que auxilia a colocar itens
+        de mesma chave distribuídos no vetor. O
+        hash usado foi simples e a tabela se redimensiona sempre que a
+        proporção N/M > 1/2 (N o total de objetos, M o total de espaços
+        na tabela).
 
     \subsection{word} 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,6 +143,34 @@
         ponteiros para um buffer) que auxiliam a imprimir, contar e 
         acessar os dados presentes na tabela de símbolos.
 
+    \subsection{lemma} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        Um módulo que utiliza as estruturas de lista e tabela de
+        símbolos para poder construir as funções necessárias para o
+        acesso, contagem e impressão de dados relacionados aos lemas.
+
+    \subsection{getline}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        O arquivo 'getline', retirado das notas de aula do prof.
+        Yoshiharu, foi utilizado como um módulo para leitura de strings
+        de tamanho desconhecido. Com ele, foi possível produzir um
+        buffer que armazenasse o texto lido.
+
+    \subsection{main} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Arquivo principal do texto que contêm a interface com o usuário
+        (via linha de comando e opções de execução) e a leitura (em fase
+        de pré-processamento) do texto passado como parâmetro ao
+        programa.
+
+    \subsection{makefile} 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Arquivo para a compilação dos arquivos. Sua estrutura é de
+        propósito geral e permite compilar projetos diversificados com
+        diretórios.
+        
 \section{Considerações finais} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Dada a generalização das estruturas propostas por esta implementação

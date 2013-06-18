@@ -28,10 +28,12 @@
 #include "word.h"
 
 /* Tabela de símbolos */
-#if defined(W_LP)
+#if defined(LP)
     #include "lp.h"
-#elif defined(W_ENC)
+#elif defined(ENC)
     #include "enc.h"
+#elif defined(ARNE)
+    #include "arne.h"
 #endif
 
 /*

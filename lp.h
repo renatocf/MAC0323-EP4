@@ -27,11 +27,8 @@ ST STinit        (Item NULLitem,
 void STsort      (ST, void(*visit)(Item));
 void STfree      (ST);
 int  STcount     (ST);
-int  STempty     (ST);
 void STdelete    (ST, Key);
 Item STsearch    (ST, Key);
 void STinsert    (ST, Item);
-void STdeleteMin (ST);
-void STdeleteMax (ST);
 
 #endif

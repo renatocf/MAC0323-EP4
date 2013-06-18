@@ -1,4 +1,9 @@
 #######################################################################
+#							PREDIRECTIVES                             #
+#######################################################################
+ALL: all
+
+#######################################################################
 #                             OPTIONS                                 #
 #######################################################################
 
@@ -6,12 +11,12 @@
 BIN := ep4encenc ep4enclp ep4lpenc ep4lplp
 
 # Own defined directives
-EXCLUDE_SRC := word.c lemma.c
+EXCLUDE_SRC := word.c lemma.c arne.c enc.c lp.c
 -include compile.mk
 
 # Flags for compilation and linkage
 CFLAGS  += -ansi -Wall -pedantic -g
-LDFLAGS += -lm 
+LDFLAGS += -lm
 
 # Boolean options ('true' or 'false')
 B_PROFILE = 'false'
@@ -24,6 +29,10 @@ DESKTOP :=
 ########################################################################
 #                        AUTOMATIC CONFIGS                             #
 ########################################################################
+
+# Saving flags for names being used later
+U_CFLAGS  := $(CFLAGS)
+U_LDFLAGS := $(LDFLAGS)
 
 # PROGRAMS #############################################################
 # The following programs are defined with the base in common avaiable
@@ -89,6 +98,7 @@ OBJ := $(addprefix $(OBJDIR)/,$(OBJ))         # Adiciona diretório
 # COMPILATION ##########################################################
 FDIR = $(HEADDIR) # Gerando diretórios
 CLIBS  := -I. $(patsubst %,-I%,$(filter-out .%,$(shell $(FIND))))
+CFLAGS := $(U_CFLAGS)
 
 
 # PROFILE ##############################################################
@@ -103,9 +113,10 @@ FDIR = $(LIBDIR) # Gerando bibliotecas
 LDLIBS   = -L. $(patsubst %,-L%,$(filter-out .%,$(shell $(FIND))))
 
 # Flags para processo de ligação 
-LDFLAGS += -Wl,-rpath,$(LIBDIR)
+LDFLAGS := -Wl,-rpath,$(LIBDIR) 
 LDFLAGS += $(filter -l%,$(patsubst lib%.a,-l%,$(LIBS))) \
  		   $(filter -l%,$(patsubst lib%.so,-l%,$(LIBS)))
+LDFLAGS += $(U_LDFLAGS)
 
 
 # INSTALL ##############################################################
@@ -176,7 +187,7 @@ doc:
 .PHONY: clean
 clean:
 	$(RM) $(OBJDIR)/*.o $(LIBDIR)/*.a $(LIBDIR)/*.so
-	$(RM) $(BINDIR)/gmon.out $(DATADIR)/debug.txt
+	$(RM) $(BINDIR)/gmon.out $(DATADIR)/debug.txt $(OBJDIR)/*.gcda
 	$(RM) $(SRCDIR)/*~ $(HEADDIR)/*~ 
 	$(RM) $(DEP)
 	-$(RMDIR) $(OBJDIR) 2> /dev/null
@@ -204,9 +215,6 @@ endif
 $(BINDIR)/$(BIN): $(OBJ) | $(LIBS) $(BINDIR)
 	$(CC) $^ -o $@ $(LDLIBS) $(LDFLAGS)
 
-# $(BINDIR)/ep4encenc: $(OBJ) | $(LIBS) $(BINDIR)
-	# $(CC) $^ -o $@ $(LDLIBS) $(LDFLAGS)
-
 $(OBJDIR)/%.o: $(addprefix $(SRCDIR)/,%.c)
 	$(CC) $(CLIBS) $(CFLAGS) -c $< -o $@
 
@@ -228,7 +236,6 @@ lib%.a: $(OBJDIR)/$(notdir %.o)
 
 # SHARED LIBRARIES #####################################################
 lib%.so: $(SRCDIR)/%.c
-	@ #(filter-out .h,$*) 
 	$(CC) -fPIC $(CFLAGS) $(CLIBS) -c $< -o $(OBJDIR)/$*.o
 	$(CC) -o $(LIBDIR)/$@ $(SOFLAGS) $(OBJDIR)/$*.o 
 

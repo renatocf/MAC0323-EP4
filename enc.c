@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 /* Bibliotecas internas */
-#include "ST.h"
+#include "enc.h"
 #include "Item.h"
 
 /*
