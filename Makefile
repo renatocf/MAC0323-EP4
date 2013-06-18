@@ -3,14 +3,18 @@
 #######################################################################
 
 # Binary name (your program's name):
-BIN := ep4
+BIN := ep4encenc ep4enclp ep4lpenc ep4lplp
 
-# Flags para processo de compilação e linkage
+# Own defined directives
+EXCLUDE_SRC := word.c lemma.c
+-include compile.mk
+
+# Flags for compilation and linkage
 CFLAGS  += -ansi -Wall -pedantic -g
 LDFLAGS += -lm 
 
 # Boolean options ('true' or 'false')
-B_DEBUG   = 'true'
+B_PROFILE = 'false'
 B_INSTALL = 'false'
 
 # Options to installation
@@ -46,6 +50,7 @@ RMDIR := rmdir --ignore-fail-on-non-empty
 MAKE  += --no-print-directory
 -include $(CONFDIR)/programs.mk
 
+
 # DIRECTORIES ##########################################################
 # To a multiple directory project, create a file 'derectories.mk' in
 # your conf directory, redefining the following dir names by the ones   
@@ -68,6 +73,7 @@ DATADIR := .
 -include $(CONFDIR)/directories.mk
 VPATH = $(CONFDIR):$(SRCDIR):$(LIBDIR):$(BINDIR):$(TESTDIR):$(HEADDIR)
 
+
 # SOURCE ###############################################################
 SRC := $(notdir $(shell ls $(SRCDIR)/*.c))
 LIB := $(CONFDIR)/libraries.mk
@@ -75,18 +81,22 @@ DEP := $(addprefix $(CONFDIR)/,$(SRC:.c=.d))
 
 -include $(LIB)
 OBJ := $(filter-out $(ARLIB) $(SOLIB),$(SRC)) # Tira bibliotecas
+OBJ := $(filter-out $(EXCLUDE_SRC),$(SRC))    # Tira regras próprias
 OBJ := $(patsubst %.c,%.o,$(OBJ))             # Substitui .c por .o
 OBJ := $(addprefix $(OBJDIR)/,$(OBJ))         # Adiciona diretório
+
 
 # COMPILATION ##########################################################
 FDIR = $(HEADDIR) # Gerando diretórios
 CLIBS  := -I. $(patsubst %,-I%,$(filter-out .%,$(shell $(FIND))))
 
-# DEBUG ################################################################
-ifeq ($(B_DEBUG),'true')
+
+# PROFILE ##############################################################
+ifeq ($(B_PROFILE),'true')
 CFLAGS  += -pg -fprofile-arcs
 LDFLAGS += -pg -fprofile-arcs
 endif
+
 
 # LINKAGE ##############################################################
 FDIR = $(LIBDIR) # Gerando bibliotecas
@@ -96,6 +106,7 @@ LDLIBS   = -L. $(patsubst %,-L%,$(filter-out .%,$(shell $(FIND))))
 LDFLAGS += -Wl,-rpath,$(LIBDIR)
 LDFLAGS += $(filter -l%,$(patsubst lib%.a,-l%,$(LIBS))) \
  		   $(filter -l%,$(patsubst lib%.so,-l%,$(LIBS)))
+
 
 # INSTALL ##############################################################
 ifeq ($(B_INSTALL),'true')
@@ -192,6 +203,9 @@ endif
 # EXECUTABLE ###########################################################
 $(BINDIR)/$(BIN): $(OBJ) | $(LIBS) $(BINDIR)
 	$(CC) $^ -o $@ $(LDLIBS) $(LDFLAGS)
+
+# $(BINDIR)/ep4encenc: $(OBJ) | $(LIBS) $(BINDIR)
+	# $(CC) $^ -o $@ $(LDLIBS) $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(addprefix $(SRCDIR)/,%.c)
 	$(CC) $(CLIBS) $(CFLAGS) -c $< -o $@

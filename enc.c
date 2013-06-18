@@ -42,7 +42,7 @@ struct st {
 };
 
 /* Contador para número de tabelas de símbolo */
-static int TSn = 0;
+static int STn = 0;
 
 /*
 ////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ ST STinit(
     int  (*less)(Key, Key) )
 {
     /* Inicializa nova tabela de símbolos */
-    ST new = (ST) malloc(sizeof(*new)); TSn++;
+    ST new = (ST) malloc(sizeof(*new)); STn++;
     
     /* Inicializa 'z' (se não feito antes) */
     if(z == NULL) z = NEW(NULLitem, NULL);
@@ -164,7 +164,7 @@ void STinsert(ST st, Item item)
 { 
     Key v = st->key(item);
     int i = hash(v, st->M);
-    st->heads[i] = NEW(item, st->heads[i]); st->N++; 
+    st->heads[i] = NEW(item, st->heads[i]);
     if (st->N++ > st->M/2) resize(st, 2);
 }
 
@@ -175,7 +175,7 @@ static void resize(ST st, float factor)
     st = init(st, st->M);
     for (i = 0; i < MM; i++) 
         for(aux = t[i]; aux != z; aux = aux->next) 
-            STinsert(st, aux->item); 
+        { STinsert(st, aux->item); /* free(aux);*/ }
     free(t);
 }
 
@@ -218,28 +218,33 @@ static int cmp(const void *a, const void *b)
 
 void STsort(ST st, void(*visit)(Item))
 {
+    /* Aloca vetor de chaves para ordenação */
     int i = 0, j = 0, N = st->N; link t;
     Key *keys = (Key *) malloc(N * sizeof(*keys));
-    printf("%d\n", N);
-    for(i = 0; i < st->M; i++) 
-    {
-        if(st->heads[i] != z)
-            for(j = 0, t = st->heads[i]; t != z; t = t->next) {
-                /* BUG: dá segfault no -s com NULL aqui */
-                if(t == z) break;
-                keys[j++] = st->key(t);
-            }
-    }
     
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    /* Preenche vetor de chaves */
+    for(i = 0; i < st->M; i++) 
+        if(st->heads[i] != z)
+            for(t = st->heads[i]; t != z; t = t->next)
+                keys[j++] = st->key(t->item);
+    
+    /* Ordena as chaves com a função qsort */
     global_st = st;
     qsort((void *) keys, N, sizeof(*keys), cmp);
     
-    for(i = 0; i < N; i++) visit(STsearch(st, keys[i]));
+    /* Seleciona e realiza a ação em cada item */
+    for(i = 0; i < N; i++)
+        visit(STsearch(st, keys[i]));
     
     free(keys); /* Libera vetor auxiliar de chaves */
 }
 
 /* Liberação de memória */
 void STfree(ST st)
-    { STsort(st, st->free_item); free(st); }
+{ 
+    int i = 0; link t; STn--;
+    for(i = 0; i < st->M; i++) 
+        for(t = st->heads[i]; t != z; t = t->next) 
+            { st->free_item(t->item); free(t); }
+    free(st->heads); free(st); if(STn == 0) free(z);
+}

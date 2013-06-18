@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 /* Bibliotecas internas */
-#include "ST.h"
+#include "arne.h"
 
 /*
 ////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 /* Bibliotecas internas */
-#include "ST.h"
+#include "lp.h"
 #include "Item.h"
 
 /*
@@ -199,10 +199,8 @@ void STsort(ST st, void(*visit)(Item))
     
     /* Armazena chaves no vetor de chaves*/
     for(i = 0; i < M; i++)
-    {
         if(st->item[i] != st->NULLitem) 
             keys[j++] = st->key(st->item[i]);
-    }
     
     /* Ordena as chaves conforme 'less' e 'eq' */
     global_st = st;
@@ -217,4 +215,10 @@ void STsort(ST st, void(*visit)(Item))
 
 /* Liberação de memória */
 void STfree(ST st)
-    { /* STsort(st, st->free_item); */ free(st); }
+{ 
+    int i = 0;
+    for(i = 0; i < st->M; i++)
+        if(st->item[i] != st->NULLitem) 
+            st->free_item(st->item[i]);
+    free(st->item); free(st); 
+}

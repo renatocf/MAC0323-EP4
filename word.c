@@ -23,10 +23,16 @@
 #include <string.h>
 
 /* Bibliotecas internas */
-#include "ST.h"
 #include "Item.h"
 #include "list.h"
 #include "word.h"
+
+/* Tabela de símbolos */
+#if defined(W_LP)
+    #include "lp.h"
+#elif defined(W_ENC)
+    #include "enc.h"
+#endif
 
 /*
 ////////////////////////////////////////////////////////////////////////
